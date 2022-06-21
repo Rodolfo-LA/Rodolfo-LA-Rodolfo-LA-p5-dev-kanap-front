@@ -3,6 +3,7 @@
 
 var tb = new Array();
 
+
 // Récupération des données de l'API du serveur dans le tableau value
 
 fetch("http://192.168.1.200:3000/api/products")

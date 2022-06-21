@@ -3,7 +3,6 @@
 
 var tb = new Array();
 
-
 // Récupération des données de l'API du serveur dans le tableau value
 
 fetch("http://192.168.1.200:3000/api/products")
@@ -18,7 +17,7 @@ fetch("http://192.168.1.200:3000/api/products")
 
   var txt = '';
     for (var z=0;z<tb.length;z++) { // Génération du code HTML
-      txt+='<a href=\"./product.html?id=' + tb[z]._id + '\"><article><img src=\"'+ tb[z].imageUrl + '\" alt=\"' + tb[z].altTxt +'\"><h3 class=\"productName\">\"' + tb[z].name + '\"</h3><p class=\"productDescription\">' + tb[z].description + '</p></article></a>'
+      txt+='<a href=\"./product.html?id=' + tb[z]._id + '\"><article><img src=\"'+ tb[z].imageUrl + '\" alt=\"' + tb[z].altTxt +'\"><h3 class=\"productName\">' + tb[z].name + '</h3><p class=\"productDescription\">' + tb[z].description + '</p></article></a>'
     }
     document.getElementById("items").innerHTML = txt;  // Insertion du code HTML
   })

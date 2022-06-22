@@ -21,8 +21,8 @@ fetch(url_API_canape)
   })
   .then(function(value) {
 
-	var txt='<img src=\"' + value.imageUrl + '\" alt=\"' + value.altTxt + '\">';
-	const contents = document.getElementsByClassName('item__img');
+    var txt='<img src=\"' + value.imageUrl + '\" alt=\"' + value.altTxt + '\">';
+    const contents = document.getElementsByClassName('item__img');
 
     contents[0].innerHTML = txt;  // Insertion du code HTML url de l'image
 
@@ -30,7 +30,15 @@ fetch(url_API_canape)
     document.getElementById("price").innerHTML = value.price;  // Insertion du code HTML prix
     document.getElementById("description").innerHTML = value.description;  // Insertion du code HTML descritif
 
-  })
+    txt = '';
+    for (var i = 0; i < value.colors.length; i++) {
+      txt+='<option value=\"' + value.colors[i] + '\">' + value.colors[i] + '</option>'
+    }
+
+    document.getElementById("colors").innerHTML = txt;  // Insertion du code HTML choix des couleurs disponibles    
+
+
+})
   .catch(function(err) {
     // Affichage d'un message d'erreur
       console.log("! Le serveur est indisponible !");

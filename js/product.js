@@ -65,6 +65,17 @@ function Sauvegarde_Produit() {
       product_Qte : quantite_Sel,
       product_Coul : couleur_Sel
     }
+
+    for (var i = 0; i < nb_Kanap; i++) {  // recherche d'un produit identique dans le localstorage
+      var lectJson = JSON.parse(localStorage.getItem("panier"+ i));
+      if (lectJson.product_Id == id_canape && lectJson.product_Coul == couleur_Sel) {
+        panierJson.product_Qte = parseInt(panierJson.product_Qte,10) + parseInt(lectJson.product_Qte,10);
+        localStorage.removeItem("panier"+ i);
+        nb_Kanap = i;
+        break;
+      }
+    }
+
     localStorage.setItem("panier"+nb_Kanap,JSON.stringify(panierJson));
   }
 }

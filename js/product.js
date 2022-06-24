@@ -21,11 +21,7 @@ fetch(url_api_canape)
     }
   })
   .then(function(value) {
-    let txt='<img src=\"'
-            + value.imageUrl
-            + '\" alt=\"'
-            + value.altTxt
-            + '\">';
+    let txt=`<img src=\"${value.imageUrl}\" alt=\"${value.altTxt}\">`;
 
     const contents = document.getElementsByClassName('item__img');
     contents[0].innerHTML = txt;                                           // Insertion du code HTML url de l'image
@@ -34,7 +30,7 @@ fetch(url_api_canape)
     document.getElementById("price").innerHTML = value.price;              // Insertion du code HTML prix
     document.getElementById("description").innerHTML = value.description;  // Insertion du code HTML descritif
 
-    txt = '<option value="">--SVP, choisissez une color --</option>';
+    txt = ``;
     for (const pt of value.colors) {
       txt+=`<option value=\" ${pt} \"> ${pt} </option>`;             // insertion poue le choix des couleurs disponibles
     }
@@ -47,9 +43,10 @@ fetch(url_api_canape)
 
 // Sauvegarde dans le LocalStore les infos du produit selectionné
 
+let un_clic = false;  // un seul appui sur le bouton "Ajoute au panier" autorisé 
+
 function save_product() {
 
-  let un_clic = false;  // un seul appui sur le bouton "Ajoute au panier" autorisé 
   let color_sel;        // récupère la couleur du canapé selectionné
   let quantity_sel;     // récupère la quantité de canapé selectionné
   let idx_lstore;       // position du produit dans le LocaStore

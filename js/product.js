@@ -36,7 +36,7 @@ fetch(url_api_canape)
 
     txt = '<option value="">--SVP, choisissez une color --</option>';
     for (const pt of value.colors) {
-      txt+='<option value=\"' + pt + '\">' + pt + '</option>';             // insertion poue le choix des couleurs disponibles
+      txt+=`<option value=\" ${pt} \"> ${pt} </option>`;             // insertion poue le choix des couleurs disponibles
     }
     document.getElementById("colors").innerHTML = txt;                     // Insertion du code HTML choix des colors disponibles
   })

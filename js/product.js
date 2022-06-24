@@ -1,85 +1,84 @@
 
+// activation du mode strict
+
+"use strict";
 
 // Code pour la page Produit
 
+let url_api_canape = "http://192.168.1.200:3000/api/products/";
+let url_courante = window.location.href;
+let url = new URL(url_courante);
+let id_canape = url.searchParams.get("id");
 
-var url_API_canape = "http://192.168.1.200:3000/api/products/";
-var url_courante = window.location.href;
-
-var url = new URL(url_courante);
-var id_canape = url.searchParams.get("id");
-
-url_API_canape+=id_canape;
-
-var tb = new Array();
-
-var un_Clic = false;
+url_api_canape+=id_canape;
 
 // Récupération des données de l'API du serveur du produit selectionné avec l'id de la page
 
-fetch(url_API_canape)
+fetch(url_api_canape)
   .then(function(res) {
     if (res.ok) {
       return res.json();
     }
   })
   .then(function(value) {
+    let txt='<img src=\"'
+            + value.imageUrl
+            + '\" alt=\"'
+            + value.altTxt
+            + '\">';
 
-    for (var z=0;z<value.length;z++)  // Copie des éléments du tableau dans la variable globale tb
-      tb[z] = value[z];
-
-    var txt='<img src=\"' + value.imageUrl + '\" alt=\"' + value.altTxt + '\">';
     const contents = document.getElementsByClassName('item__img');
+    contents[0].innerHTML = txt;                                           // Insertion du code HTML url de l'image
 
-    contents[0].innerHTML = txt;  // Insertion du code HTML url de l'image
-
-    document.getElementById("title").innerHTML = value.name;  // Insertion du code HTML titre
-    document.getElementById("price").innerHTML = value.price;  // Insertion du code HTML prix
+    document.getElementById("title").innerHTML = value.name;               // Insertion du code HTML titre
+    document.getElementById("price").innerHTML = value.price;              // Insertion du code HTML prix
     document.getElementById("description").innerHTML = value.description;  // Insertion du code HTML descritif
 
-    txt = '<option value="">--SVP, choisissez une couleur --</option>';
-    for (var i = 0; i < value.colors.length; i++) {
-      txt+='<option value=\"' + value.colors[i] + '\">' + value.colors[i] + '</option>'
+    txt = '<option value="">--SVP, choisissez une color --</option>';
+    for (const pt of value.colors) {
+      txt+='<option value=\"' + pt + '\">' + pt + '</option>';             // insertion poue le choix des couleurs disponibles
     }
-
-    document.getElementById("colors").innerHTML = txt;  // Insertion du code HTML choix des couleurs disponibles    
-
-
-})
+    document.getElementById("colors").innerHTML = txt;                     // Insertion du code HTML choix des colors disponibles
+  })
   .catch(function(err) {
     // Affichage d'un message d'erreur
-      console.log("! Le serveur est indisponible !");
+    console.log("! Le serveur est indisponible !");
   });
 
 // Sauvegarde dans le LocalStore les infos du produit selectionné
 
-function Sauvegarde_Produit() {
+function save_product() {
 
-  if (un_Clic == false) {    // un seul ajout au panier autorisé
-    un_Clic = true;
-    var couleur_Sel = document.getElementById("colors").value;
-    var quantite_Sel = document.getElementById("quantity").value;
-    var nb_Kanap = localStorage.length;
-    var panierJson = {
-      product_Id : id_canape,
-      product_Qte : quantite_Sel,
-      product_Coul : couleur_Sel
+  let un_clic = false;  // un seul appui sur le bouton "Ajoute au panier" autorisé 
+  let color_sel;        // récupère la couleur du canapé selectionné
+  let quantity_sel;     // récupère la quantité de canapé selectionné
+  let idx_lstore;       // position du produit dans le LocaStore
+  let panierJson;       // valeur du produit dans le localStore
+
+  if (un_clic == false) {    // teste si le bouton à été déjà appuyé
+    un_clic = true;
+    color_sel = document.getElementById("colors").value;
+    quantity_sel = document.getElementById("quantity").value;
+    idx_lstore = localStorage.length;
+    panierJson = {
+      product_id : id_canape,
+      product_qty : quantity_sel,
+      product_col : color_sel
     }
 
-    for (var i = 0; i < nb_Kanap; i++) {  // recherche d'un produit identique dans le localstorage
-      var lectJson = JSON.parse(localStorage.getItem("panier"+ i));
-      if (lectJson.product_Id == id_canape && lectJson.product_Coul == couleur_Sel) {
-        panierJson.product_Qte = parseInt(panierJson.product_Qte,10) + parseInt(lectJson.product_Qte,10);
+    for (let i = 0; i < idx_lstore; i++) {  // recherche d'un produit identique dans le localstorage
+      let lectJson = JSON.parse(localStorage.getItem("panier"+ i));
+      if (lectJson.product_id == id_canape && lectJson.product_col == color_sel) {
+        panierJson.product_qty = parseInt(panierJson.product_qty,10) + parseInt(lectJson.product_qty,10);
         localStorage.removeItem("panier"+ i);
-        nb_Kanap = i;
+        idx_lstore = i;
         break;
       }
     }
-
-    localStorage.setItem("panier"+nb_Kanap,JSON.stringify(panierJson));
+    localStorage.setItem("panier"+idx_lstore,JSON.stringify(panierJson));
   }
 }
 
-  // assigne la fonction au clic sur le bouton "Ajoute au panier"
+// assigne la fonction au clic sur le bouton "Ajoute au panier"
 
-  document.getElementById('addToCart').onclick = Sauvegarde_Produit;
+document.getElementById('addToCart').onclick = save_product;

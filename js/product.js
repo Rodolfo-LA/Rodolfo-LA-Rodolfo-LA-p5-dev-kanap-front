@@ -12,6 +12,8 @@ let id_canape = url.searchParams.get("id");
 
 url_api_canape+=id_canape;
 
+let price_sel;        // prix unitaire du canapé selectionné
+
 // Récupération des données de l'API du serveur du produit selectionné avec l'id de la page
 
 fetch(url_api_canape)
@@ -26,13 +28,15 @@ fetch(url_api_canape)
     const contents = document.getElementsByClassName('item__img');
     contents[0].innerHTML = txt;                                           // Insertion du code HTML url de l'image
 
+    price_sel = value.price; 
+
     document.getElementById("title").innerHTML = value.name;               // Insertion du code HTML titre
-    document.getElementById("price").innerHTML = value.price;              // Insertion du code HTML prix
+    document.getElementById("price").innerHTML = price_sel;                // Insertion du code HTML prix
     document.getElementById("description").innerHTML = value.description;  // Insertion du code HTML descritif
 
     txt = ``;
     for (const pt of value.colors) {
-      txt+=`<option value=\" ${pt} \"> ${pt} </option>`;             // insertion poue le choix des couleurs disponibles
+      txt+=`<option value=\" ${pt} \"> ${pt} </option>`;                   // insertion poue le choix des couleurs disponibles
     }
     document.getElementById("colors").innerHTML = txt;                     // Insertion du code HTML choix des colors disponibles
   })
@@ -48,7 +52,7 @@ let un_clic = false;  // un seul appui sur le bouton "Ajoute au panier" autoris�
 function save_product() {
 
   let color_sel;        // récupère la couleur du canapé selectionné
-  let quantity_sel;     // récupère la quantité de canapé selectionné
+  let quantity_sel;     // récupère la quantité du canapé selectionné
   let idx_lstore;       // position du produit dans le LocaStore
   let panierJson;       // valeur du produit dans le localStore
 
@@ -60,7 +64,8 @@ function save_product() {
     panierJson = {
       product_id : id_canape,
       product_qty : quantity_sel,
-      product_col : color_sel
+      product_col : color_sel,
+      product_price : price_sel
     }
 
     for (let i = 0; i < idx_lstore; i++) {  // recherche d'un produit identique dans le localstorage

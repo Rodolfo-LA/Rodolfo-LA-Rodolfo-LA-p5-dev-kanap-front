@@ -13,9 +13,15 @@ fetch("http://192.168.1.200:3000/api/products")
   })
   .then(function(value) {
     let txt = ``;
-    for (let i = 0; i < localStorage.length; i++) {
+    let idx_lstore = localStorage.length;
+
+    for (let i = 0; i < idx_lstore; i++) {
 
     	let panLinea = localStorage.getItem("panier" + i);
+      if (panLinea == null){
+        idx_lstore++;
+        continue;
+      }
     	let panJson = JSON.parse(panLinea);
 
     	for ( const pt of value) {
@@ -54,9 +60,18 @@ fetch("http://192.168.1.200:3000/api/products")
       pt.addEventListener('change', function () {
         console.log(this.closest('article').dataset.id + " ----- "+this.value);
         update_product(this.closest('article').dataset.id, parseInt(this.value,10));
-
       })
     }
+
+    tab_elem = document.getElementsByClassName("deleteItem");
+
+    for (const pt of tab_elem) {
+      pt.addEventListener('click', function () {
+        console.log(this.closest('article').dataset.id + " supprimé");
+        del_product(this.closest('article').dataset.id,this.closest('article')); 
+      })
+    }
+
   })
   .catch(function(err) {
       // Affichage d'un message d'erreur
@@ -70,11 +85,15 @@ fetch("http://192.168.1.200:3000/api/products")
 
 function update_product(id_update, quantity_sel ) {
 
-  let idx_lstore;       // position du produit dans le LocalStore
   let lectJson;
+  let idx_lstore = localStorage.length;
 
-  for (let i = 0; i < localStorage.length; i++) {  // recherche d'un produit identique dans le localstorage
+  for (let i = 0; i < idx_lstore; i++) {  // recherche d'un produit identique dans le localstorage
     lectJson = JSON.parse(localStorage.getItem("panier"+ i));
+    if (lectJson == null){
+      idx_lstore++;
+      continue;
+    }
     if (lectJson.product_id == id_update) {
       lectJson.product_qty = quantity_sel;
       localStorage.removeItem("panier"+ i);
@@ -91,10 +110,15 @@ function update_product(id_update, quantity_sel ) {
 function update_tot_panier() {
 
   let total_panier = 0;
+  let idx_lstore = localStorage.length;
 
-  for (let i = 0; i < localStorage.length; i++) {
+  for (let i = 0; i < idx_lstore; i++) {
 
     let panLinea = localStorage.getItem("panier" + i);
+    if (panLinea == null){
+      idx_lstore++;
+      continue;
+    }
     let panJson = JSON.parse(panLinea);
 
     total_panier+=(panJson.product_price * panJson.product_qty); // calcul du panier = somme des ( prix x quantité par élément)
@@ -102,3 +126,25 @@ function update_tot_panier() {
   document.getElementById("totalPrice").innerHTML = total_panier;  // Insertion du code prix total du panier
   return total_panier;
 }
+
+// supprime le produit sélectionné du panier
+
+function del_product(id_select,id_html){
+
+  let idx_lstore = localStorage.length;
+
+  for (let i = 0; i < idx_lstore; i++) {  // recherche d'un produit identique dans le localstorage
+    let lectJson = JSON.parse(localStorage.getItem("panier"+ i));
+    if (lectJson == null){
+      idx_lstore++;
+      continue;
+    }
+    if (lectJson.product_id == id_select) {
+      localStorage.removeItem("panier"+ i);
+      update_tot_panier();
+      break;
+    }
+  }
+  id_html.remove();   // suppresion de l'article concerné dans le HTML
+}
+

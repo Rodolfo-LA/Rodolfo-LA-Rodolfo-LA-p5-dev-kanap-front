@@ -53,13 +53,18 @@ function save_product() {
 
   let color_sel;        // récupère la couleur du canapé selectionné
   let quantity_sel;     // récupère la quantité du canapé selectionné
-  let idx_lstore;       // position du produit dans le LocaStore
+  let idx_lstore;       // pointe le dernier produit dans le LocaStore
   let panierJson;       // valeur du produit dans le localStore
 
   if (un_clic == false) {    // teste si le bouton à été déjà appuyé
     un_clic = true;
     color_sel = document.getElementById("colors").value;
     quantity_sel = document.getElementById("quantity").value;
+    if (quantity_sel<=0) {
+      un_clic = false;
+      console.log("quantité sélectionnée nulle");
+      return;
+    }
     idx_lstore = localStorage.length;
     panierJson = {
       product_id : id_canape,
@@ -70,6 +75,10 @@ function save_product() {
 
     for (let i = 0; i < idx_lstore; i++) {  // recherche d'un produit identique dans le localstorage
       let lectJson = JSON.parse(localStorage.getItem("panier"+ i));
+      if (lectJson == null){
+        idx_lstore++;
+        continue;
+      }
       if (lectJson.product_id == id_canape && lectJson.product_col == color_sel) {
         panierJson.product_qty = parseInt(panierJson.product_qty,10) + parseInt(lectJson.product_qty,10);
         localStorage.removeItem("panier"+ i);

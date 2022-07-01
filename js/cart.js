@@ -52,7 +52,8 @@ fetch("http://192.168.1.200:3000/api/products")
       }
     }
     document.getElementById("cart__items").innerHTML = txt;  // Insertion du code <article> HTML
-    document.getElementById("totalPrice").innerHTML = update_tot_panier();  // Insertion du code prix total du panier
+    update_tot_article();  // Insertion du code nombre d'article du panier    
+    update_tot_panier();  // Insertion du code prix total du panier
 
     let tab_elem = document.getElementsByClassName("itemQuantity");
 
@@ -102,7 +103,29 @@ function update_product(id_update, quantity_sel ) {
     }
   }
   localStorage.setItem("panier"+idx_lstore,JSON.stringify(lectJson));
+  update_tot_article();
   update_tot_panier();
+}
+
+// calcul et mise à jour du nombre d'article du panier
+
+function update_tot_article() {
+
+  let total_article = 0;
+  let idx_lstore = localStorage.length;
+
+  for (let i = 0; i < idx_lstore; i++) {
+
+    let panLinea = localStorage.getItem("panier" + i);
+    if (panLinea == null){
+      idx_lstore++;
+      continue;
+    }
+    let panJson = JSON.parse(panLinea);
+    total_article+=parseInt(panJson.product_qty,10);
+  }
+  document.getElementById("totalQuantity").innerHTML = total_article;
+  return total_article;
 }
 
 // calcul et mise à jour de la valeur du panier
@@ -141,6 +164,7 @@ function del_product(id_select,id_html){
     }
     if (lectJson.product_id == id_select) {
       localStorage.removeItem("panier"+ i);
+      update_tot_article();
       update_tot_panier();
       break;
     }

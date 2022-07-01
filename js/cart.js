@@ -60,7 +60,7 @@ fetch("http://192.168.1.200:3000/api/products")
     for (const pt of tab_elem) {
       pt.addEventListener('change', function () {
         console.log(this.closest('article').dataset.id + " ----- "+this.value);
-        update_product(this.closest('article').dataset.id, parseInt(this.value,10));
+        update_product(this.closest('article').dataset.id,parseInt(this.value,10));
       })
     }
 
@@ -69,7 +69,7 @@ fetch("http://192.168.1.200:3000/api/products")
     for (const pt of tab_elem) {
       pt.addEventListener('click', function () {
         console.log(this.closest('article').dataset.id + " supprimé");
-        del_product(this.closest('article').dataset.id,this.closest('article')); 
+        del_product(this.closest('article').dataset.id,this.closest('article').dataset.color,this.closest('article')); 
       })
     }
 
@@ -152,7 +152,7 @@ function update_tot_panier() {
 
 // supprime le produit sélectionné du panier
 
-function del_product(id_select,id_html){
+function del_product(id_select,id_color,id_html){
 
   let idx_lstore = localStorage.length;
 
@@ -162,7 +162,7 @@ function del_product(id_select,id_html){
       idx_lstore++;
       continue;
     }
-    if (lectJson.product_id == id_select) {
+    if (lectJson.product_id == id_select && lectJson.product_col == id_color) {
       localStorage.removeItem("panier"+ i);
       update_tot_article();
       update_tot_panier();

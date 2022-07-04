@@ -5,6 +5,8 @@
 
 // Code pour la page Produit
 
+let panier = [];
+
 let url_api_canape = "http://192.168.1.200:3000/api/products/";
 let url_courante = window.location.href;
 let url = new URL(url_courante);
@@ -14,7 +16,7 @@ url_api_canape+=id_canape;
 
 let price_sel;        // prix unitaire du canapé selectionné
 
-// Récupération des données de l'API du serveur du produit selectionné avec l'id de la page
+// Récupération des données de l'API du serveur du produit selectionné avec l'id transmis dans l'URL
 
 fetch(url_api_canape)
   .then(function(res) {
@@ -65,28 +67,34 @@ function save_product() {
       console.log("quantité sélectionnée nulle");
       return;
     }
-    idx_lstore = localStorage.length;
+    
     panierJson = {
       product_id : id_canape,
-      product_qty : quantity_sel,
+      product_qty : parseInt(quantity_sel,10),
       product_col : color_sel,
       product_price : price_sel
     }
 
-    for (let i = 0; i < idx_lstore; i++) {  // recherche d'un produit identique dans le localstorage
-      let lectJson = JSON.parse(localStorage.getItem("panier"+ i));
-      if (lectJson == null){
-        idx_lstore++;
-        continue;
+    panier=JSON.parse(localStorage.getItem("panier"));
+
+    if (panier !=null) {
+      let match = false;              // recherche de produit identique
+      for (const pt of panier) {
+        if (pt.product_id == id_canape && pt.product_col == color_sel) {
+          pt.product_qty+= parseInt(quantity_sel,10);
+          match = true;
+          break;
+        }
       }
-      if (lectJson.product_id == id_canape && lectJson.product_col == color_sel) {
-        panierJson.product_qty = parseInt(panierJson.product_qty,10) + parseInt(lectJson.product_qty,10);
-        localStorage.removeItem("panier"+ i);
-        idx_lstore = i;
-        break;
+      if (!match) {
+        panier.push(panierJson);      // pas de produit identique
       }
     }
-    localStorage.setItem("panier"+idx_lstore,JSON.stringify(panierJson));
+    else {
+      panier=[];
+      panier.push(panierJson);
+    }
+    localStorage.setItem("panier",JSON.stringify(panier));
   }
 }
 

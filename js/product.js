@@ -36,15 +36,15 @@ fetch(url_api_canape)
     document.getElementById("price").innerHTML = price_sel;                // Insertion du code HTML prix
     document.getElementById("description").innerHTML = value.description;  // Insertion du code HTML descritif
 
-    txt = ``;
+    txt = `<option value="">--SVP, choisissez une couleur --</option>`;
     for (const pt of value.colors) {
       txt+=`<option value=\" ${pt} \"> ${pt} </option>`;                   // insertion poue le choix des couleurs disponibles
     }
-    document.getElementById("colors").innerHTML = txt;                     // Insertion du code HTML choix des colors disponibles
+    document.getElementById("colors").innerHTML = txt;         // Insertion du code HTML choix des couleurs disponibles
   })
   .catch(function(err) {
     // Affichage d'un message d'erreur
-    console.log("! Le serveur est indisponible !");
+    console.log("Le serveur est indisponible !");
   });
 
 // Sauvegarde dans le LocalStore les infos du produit selectionné
@@ -55,8 +55,7 @@ function save_product() {
 
   let color_sel;        // récupère la couleur du canapé selectionné
   let quantity_sel;     // récupère la quantité du canapé selectionné
-  let idx_lstore;       // pointe le dernier produit dans le LocaStore
-  let panierJson;       // valeur du produit dans le localStore
+  let panierJson;       // infos du produit dans le localStore
 
   if (un_clic == false) {    // teste si le bouton à été déjà appuyé
     un_clic = true;
@@ -64,15 +63,19 @@ function save_product() {
     quantity_sel = document.getElementById("quantity").value;
     if (quantity_sel<=0) {
       un_clic = false;
-      alert("veuillez modifier le nombre d'article !");
+      alert("Veuillez modifier le nombre d'article !");
       return;
     }
-    
+    if (color_sel =="") {
+      un_clic = false;
+      alert("Veuillez choisir une couleur pour l'article !");
+      return;
+    }
+
     panierJson = {
       product_id : id_canape,
       product_qty : parseInt(quantity_sel,10),
       product_col : color_sel,
-      product_price : price_sel
     }
 
     panier=JSON.parse(localStorage.getItem("panier"));

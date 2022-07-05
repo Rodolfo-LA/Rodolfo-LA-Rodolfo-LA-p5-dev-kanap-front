@@ -5,6 +5,9 @@
 
 // code pour la gestion du panier
 
+
+let sav_price = [];     // tableau pour sauvegarde des prix
+
 fetch("http://192.168.1.200:3000/api/products")
   .then(function(res) {
   	if (res.ok) {
@@ -16,7 +19,8 @@ fetch("http://192.168.1.200:3000/api/products")
     let panier=JSON.parse(localStorage.getItem("panier"));
     for (const pt_pan of panier) {
     	for ( const pt_val of value) {
-    		if (pt_pan.product_id == pt_val._id) {          
+    		if (pt_pan.product_id == pt_val._id) {
+          sav_price.push(pt_val.price);
           txt+=`<article class="cart__item" data-id="${pt_val._id}" data-color="${pt_pan.product_col}">
                   <div class="cart__item__img">
                     <img src="${pt_val.imageUrl}" alt="${pt_val.altTxt}">
@@ -68,6 +72,10 @@ fetch("http://192.168.1.200:3000/api/products")
       console.log("! Le serveur est indisponible !");
   });
 
+// assigne la fonction au clic sur le bouton "Commander"
+
+document.getElementById("order").onclick = send_infos;
+
 // mise a jour du produit dans le localStore
 
 // id_update    : id du produit a modifier
@@ -92,17 +100,21 @@ function update_tot_article_panier() {
 
   let total_article = 0;
   let total_panier = 0;
+  let idx = 0;
 
   let panier=JSON.parse(localStorage.getItem("panier"));
   for (const pt of panier) {
     total_article+=parseInt(pt.product_qty,10);
-    total_panier+=(pt.product_price * pt.product_qty);        // calcul du panier = somme des ( prix x quantité par élément)
+    total_panier+=(sav_price[idx++] * pt.product_qty);        // calcul du panier = somme des ( prix x quantité par élément)
   }
   document.getElementById("totalQuantity").innerHTML = total_article;   // Insertion du code :  Total article
   document.getElementById("totalPrice").innerHTML = total_panier;       // Insertion du code  : Prix total du panier
 }
 
 // supprime le produit sélectionné du panier
+
+// id_select    : id du produit à supprimer
+// id_html      : pointe l'article à supprimer dans le HTML
 
 function del_product(id_select,id_color,id_html){
 
@@ -111,6 +123,7 @@ function del_product(id_select,id_color,id_html){
   for (const pt of panier) {
     if (pt.product_id == id_select && pt.product_col == id_color) {
       panier.splice(idx,1);
+      sav_price.splice(idx,1);
       localStorage.setItem("panier",JSON.stringify(panier));
       update_tot_article_panier();
       break;
@@ -118,6 +131,47 @@ function del_product(id_select,id_color,id_html){
     idx++;
   }
   id_html.remove();   // suppresion de l'article concerné dans le HTML
+}
 
+// envoi la requête sur l'API et attend en retour le numero de commande
+
+function send_infos() {
+
+  if(localStorage.getItem("panier") == '[]') {
+    alert("Le panier est vide, il faut ajouter des articles\navant de commander !");
+    return;
+  }
+  let contact = {                       // à traiter
+      firstName: "coco",
+      lastName: "toto",
+      address: "7 av du lion",
+      city: "Uzein",
+      email: "chezmoi@neuf.fr"
+  };
+
+  let products = [];
+  let panier=JSON.parse(localStorage.getItem("panier"));
+  for (const pt of panier) {                                // récupère tous les id du panier dans l'array products
+    products.push(pt.product_id);
+  }
+
+  fetch("http://192.168.1.200:3000/api/products/order", {
+    method: "POST",
+    headers: {'Content-Type': 'application/json',},
+    body: JSON.stringify({contact,products}),
+  })
+    .then(function(res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then(function(value) {
+      console.log(value.orderId);
+      window.location.href = `./confirmation.html?id=${value.orderId}`;     // renvoi vers la page confirmation
+    })
+    .catch((error) => {
+      console.log(error);
+      alert("Le serveur ne repond pas, veuillez réessayer ultérieurement");
+  });
 }
 

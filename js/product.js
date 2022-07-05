@@ -64,7 +64,7 @@ function save_product() {
     quantity_sel = document.getElementById("quantity").value;
     if (quantity_sel<=0) {
       un_clic = false;
-      console.log("quantité sélectionnée nulle");
+      alert("veuillez modifier le nombre d'article !");
       return;
     }
     
@@ -95,6 +95,7 @@ function save_product() {
       panier.push(panierJson);
     }
     localStorage.setItem("panier",JSON.stringify(panier));
+    alert("L'article a bien été ajouté au panier");
   }
 }
 

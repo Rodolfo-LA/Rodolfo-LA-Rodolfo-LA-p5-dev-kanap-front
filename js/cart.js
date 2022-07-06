@@ -5,8 +5,7 @@
 
 // code pour la gestion du panier
 
-
-let sav_price = [];     // tableau pour sauvegarde des prix
+let sav_price = [];     // tableau pour sauvegarde des prix du panier
 
 fetch("http://192.168.1.200:3000/api/products")
   .then(function(res) {
@@ -74,7 +73,7 @@ fetch("http://192.168.1.200:3000/api/products")
 
 // assigne la fonction au clic sur le bouton "Commander"
 
-document.getElementById("order").onclick = send_infos;
+document.getElementById("order").onclick = control_imput_user;
 
 // mise a jour du produit dans le localStore
 
@@ -133,21 +132,56 @@ function del_product(id_select,id_color,id_html){
   id_html.remove();   // suppresion de l'article concerné dans le HTML
 }
 
-// envoi la requête sur l'API et attend en retour le numero de commande
+// 
 
-function send_infos() {
 
-  if(localStorage.getItem("panier") == '[]') {
+// Contrôle la saisie de l'utilisateur
+
+function control_imput_user() {
+
+  if(localStorage.getItem("panier") == '[]') {                                          // contrôle si le panier est vide
     alert("Le panier est vide, il faut ajouter des articles\navant de commander !");
     return;
   }
+
+  const tab_reg = [ /^([a-zA-Z]|[à-ú]|[À-Ú])+$/,    // tableau qui contient les expressions régulières
+                    /^([a-zA-Z\s-]|[à-ú]|[À-Ú])+$/,
+                    /^([a-zA-Z0-9\s,-]|[à-ú]|[À-Ú])+$/,
+                    /^([a-zA-Z\s-]|[à-ú]|[À-Ú])+$/,
+                    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+                  ];               
+  const tab_base = ["firstName","lastName","address","city","email"];
+  const tab_err  = ["firstNameErrorMsg","lastNameErrorMsg","addressErrorMsg","cityErrorMsg","emailErrorMsg"];
+  let tab_get = [];
+
+  let idx = 0;
+  let error_imput = false;
+
+  for(const pt of tab_base) {
+    tab_get.push(document.getElementById(pt).value);
+    let reg_ok= new RegExp(tab_reg[idx]);
+    if (!reg_ok.test(tab_get[idx])) {
+      document.getElementById(tab_err[idx]).innerHTML = "Entrée non valide";
+      document.getElementById(tab_base[idx]).focus();
+      error_imput = true;
+      break;
+    }
+    idx++;
+  }
+  if (error_imput) {                                          // si une des entrées du client est erroné
+    alert("Veuillez modifier la ou les saisies érronées !");
+    return;
+  }
+
   let contact = {                       // à traiter
-      firstName: "coco",
-      lastName: "toto",
-      address: "7 av du lion",
-      city: "Uzein",
-      email: "chezmoi@neuf.fr"
+      firstName: tab_get[0],
+      lastName: tab_get[1],
+      address: tab_get[2],
+      city: tab_get[3],
+      email: tab_get[4]
   };
+
+  /////////////////////////////////////
 
   let products = [];
   let panier=JSON.parse(localStorage.getItem("panier"));
@@ -155,10 +189,17 @@ function send_infos() {
     products.push(pt.product_id);
   }
 
+  send_infos(JSON.stringify({contact,products}));
+}
+
+// envoi la requête sur l'API et attend en retour le numero de commande
+
+function send_infos(requette) {
+
   fetch("http://192.168.1.200:3000/api/products/order", {
     method: "POST",
     headers: {'Content-Type': 'application/json',},
-    body: JSON.stringify({contact,products}),
+    body: requette,
   })
     .then(function(res) {
       if (res.ok) {
@@ -169,9 +210,9 @@ function send_infos() {
       console.log(value.orderId);
       window.location.href = `./confirmation.html?id=${value.orderId}`;     // renvoi vers la page confirmation
     })
-    .catch((error) => {
-      console.log(error);
-      alert("Le serveur ne repond pas, veuillez réessayer ultérieurement");
+    .catch((err) => {
+      console.log(err);
+      alert("Le serveur ne repond pas, veuillez réessayer ultérieurement"+err);
   });
 }
 

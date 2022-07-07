@@ -9,6 +9,4 @@ let url = new URL(window.location.href);
 let order_number = url.searchParams.get("id");
 
 document.getElementById("orderId").innerHTML = order_number;
-
-// suppression du contenu du local store
-
+localStorage.clear();		// suppression du contenu du local store

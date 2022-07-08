@@ -16,6 +16,10 @@ fetch("http://192.168.1.200:3000/api/products")
   .then(function(value) {
     let txt = ``;
     let panier=JSON.parse(localStorage.getItem("panier"));
+    if (panier == null){
+      alert("Le panier est vide !");
+      return;
+    }
     for (const pt_pan of panier) {
     	for ( const pt_val of value) {
     		if (pt_pan.product_id == pt_val._id) {
@@ -73,7 +77,11 @@ fetch("http://192.168.1.200:3000/api/products")
 
 // assigne la fonction au clic sur le bouton "Commander"
 
-document.getElementById("order").onclick = control_imput_user;
+document.getElementById("order").addEventListener("click",function(evt) {
+
+  evt.preventDefault();
+  control_input_user();
+});
 
 // mise a jour du produit dans le localStore
 
@@ -134,7 +142,7 @@ function del_product(id_select,id_color,id_html){
 
 // Contrôle la saisie de l'utilisateur
 
-function control_imput_user() {
+function control_input_user() {
 
   if(localStorage.getItem("panier") == '[]') {                                          // contrôle si le panier est vide
     alert("Le panier est vide, il faut ajouter des articles\navant de commander !");
@@ -159,9 +167,10 @@ function control_imput_user() {
     let reg_ok= new RegExp(tab_reg[idx]);
     if (!reg_ok.test(tab_get[idx])) {
       document.getElementById(tab_err[idx]).innerHTML = "Entrée non valide";
-      document.getElementById(tab_base[idx]).focus();
       error_imput = true;
-      break;
+    }
+    else {
+      document.getElementById(tab_err[idx]).innerHTML = "";
     }
     idx++;
   }
@@ -169,6 +178,7 @@ function control_imput_user() {
     alert("Veuillez modifier la ou les saisies érronées !");
     return false;
   }
+
 
   let contact = {                       // préparation de la requête
       firstName: tab_get[0],
@@ -189,7 +199,7 @@ function control_imput_user() {
 
 // envoi la requête sur l'API et attend en retour le numero de commande
 
-function send_infos(requete) {
+function send_infos(requete) {       // var requete test
 
   fetch("http://192.168.1.200:3000/api/products/order", {
     method: "POST",

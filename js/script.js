@@ -14,11 +14,11 @@ fetch("http://192.168.1.200:3000/api/products")
   .then(function(value) {
     let txt = ``;
     for( const pt of value) {                            // Génération du code HTML
-      txt+=`<a href=\"./product.html?id=${pt._id}\">
+      txt+=`<a href="./product.html?id=${pt._id}">
               <article>
-                <img src=\"${pt.imageUrl}\" alt=\"${pt.altTxt}\">
-                <h3 class=\"productName\">${pt.name}</h3>
-                <p class=\"productDescription\">${pt.description}</p>
+                <img src="${pt.imageUrl}" alt="${pt.altTxt}">
+                <h3 class="productName">${pt.name}</h3>
+                <p class="productDescription">${pt.description}</p>
               </article>
             </a>`;
     }
@@ -26,6 +26,7 @@ fetch("http://192.168.1.200:3000/api/products")
     console.log(txt);
   })
   .catch(function(err) {
-    // Affichage d'un message d'erreur
-      console.log("! Le serveur est indisponible !");
+      console.log(err);
+      alert("Le serveur est indisponible pour le moment.\nVeuillez réessayer ultérieurement.")
+
   });

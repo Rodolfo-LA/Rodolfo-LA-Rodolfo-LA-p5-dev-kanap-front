@@ -1,4 +1,6 @@
 
+
+
 // activation du mode strict
 
 "use strict";
@@ -16,8 +18,9 @@ fetch("http://192.168.1.200:3000/api/products")
   .then(function(value) {
     let txt = ``;
     let panier=JSON.parse(localStorage.getItem("panier"));
-    if (panier == null){
-      alert("Le panier est vide !");
+    if (panier == null || panier.length == 0){
+      alert("Le panier est vide !\nVous devez sélectioner au moins un article");
+      window.location.href = `./index.html`;     // renvoi vers la page d'accueil
       return;
     }
     for (const pt_pan of panier) {
@@ -71,8 +74,9 @@ fetch("http://192.168.1.200:3000/api/products")
 
   })
   .catch(function(err) {
-      console.log("! Le serveur est indisponible !");
-      alert("Le serveur ne repond pas, veuillez réessayer ultérieurement"+err);
+      console.log(err);
+      alert("Le serveur ne répond pas,\nveuillez réessayer ultérieurement.");
+      window.location.href = `./index.html`;     // renvoi vers la page d'accueil
   });
 
 // assigne la fonction au clic sur le bouton "Commander"
@@ -140,7 +144,7 @@ function del_product(id_select,id_color,id_html){
   id_html.remove();   // suppresion de l'article concerné dans le HTML
 }
 
-// Contrôle la saisie de l'utilisateur
+// Contrôle la saisie de l'utilisateur (si OK envoi la requete sur l'API)
 
 function control_input_user() {
 
@@ -160,27 +164,26 @@ function control_input_user() {
   let tab_get = [];
 
   let idx = 0;
-  let error_imput = false;
+  let error_input = false;
 
   for(const pt of tab_base) {
     tab_get.push(document.getElementById(pt).value);
     let reg_ok= new RegExp(tab_reg[idx]);
     if (!reg_ok.test(tab_get[idx])) {
-      document.getElementById(tab_err[idx]).innerHTML = "Entrée non valide";
-      error_imput = true;
+      document.getElementById(tab_err[idx]).innerHTML = "Veuillez corriger votre saisie";
+      error_input = true;
     }
     else {
       document.getElementById(tab_err[idx]).innerHTML = "";
     }
     idx++;
   }
-  if (error_imput) {                                          // si une des entrées du client est erroné
+  if (error_input) {                                          // si une des entrées du client est erroné
     alert("Veuillez modifier la ou les saisies érronées !");
     return false;
   }
 
-
-  let contact = {                       // préparation de la requête
+  let contact = {                       // préparation des données pour la requête
       firstName: tab_get[0],
       lastName: tab_get[1],
       address: tab_get[2],
@@ -197,7 +200,9 @@ function control_input_user() {
   send_infos(JSON.stringify({contact,products}));
 }
 
-// envoi la requête sur l'API et attend en retour le numero de commande
+// envoi la requête sur l'API et attend en retour le numéro de commande
+
+// requette : données émise pour la requete POST sur l'API l'object contact & le tableau des ID produit 
 
 function send_infos(requete) {       // var requete test
 
@@ -217,7 +222,7 @@ function send_infos(requete) {       // var requete test
     })
     .catch((err) => {
       console.log(err);
-      alert("Le serveur ne repond pas, veuillez réessayer ultérieurement"+err);
+      alert("Le serveur ne répond pas,\nveuillez réessayer ultérieurement.");
   });
 }
 

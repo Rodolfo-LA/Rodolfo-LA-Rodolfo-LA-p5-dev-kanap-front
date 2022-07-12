@@ -1,5 +1,5 @@
 
-// activation du mode strict
+// Activation du mode strict
 
 "use strict";
 
@@ -9,4 +9,4 @@ let url = new URL(window.location.href);
 let order_number = url.searchParams.get("id");
 
 document.getElementById("orderId").innerHTML = order_number;
-localStorage.clear();		// suppression du contenu du local store
+localStorage.clear();		// Suppression du contenu du local store

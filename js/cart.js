@@ -1,13 +1,12 @@
 
 
-
-// activation du mode strict
+// Activation du mode strict
 
 "use strict";
 
-// code pour la gestion du panier
+// Code pour la gestion du panier
 
-let sav_price = [];     // tableau pour sauvegarde des prix du panier
+let sav_price = [];     // Tableau pour sauvegarde des prix du panier
 
 fetch("http://192.168.1.200:3000/api/products")
   .then(function(res) {
@@ -19,11 +18,20 @@ fetch("http://192.168.1.200:3000/api/products")
     let txt = ``;
     let panier=JSON.parse(localStorage.getItem("panier"));
     if (panier == null || panier.length == 0){
-      alert("Le panier est vide !\nVous devez sélectioner au moins un article");
-      window.location.href = `./index.html`;     // renvoi vers la page d'accueil
+      alert("Le panier est vide !\nVous devez sélectionner au moins un article");
+      window.location.href = `./index.html`;     // Renvoi vers la page d'accueil
       return;
     }
-    for (const pt_pan of panier) {
+
+    panier.sort(function (a, b) {             // Tri du panier par id pour regrouper les modèles identiques 
+      if (a.product_id < b.product_id) {
+         return -1;
+       } else {
+         return 1;
+       };
+    });
+
+    for (const pt_pan of panier) {          // Préparation pour l'insertion du code
     	for ( const pt_val of value) {
     		if (pt_pan.product_id == pt_val._id) {
           sav_price.push(pt_val.price);
@@ -59,7 +67,7 @@ fetch("http://192.168.1.200:3000/api/products")
     for (const pt of tab_elem) {
       pt.addEventListener('change', function () {
         console.log(this.closest('article').dataset.id + " ----- "+this.value);
-        update_product(this.closest('article').dataset.id,parseInt(this.value,10));
+        update_product(this.closest('article').dataset.id,this.closest('article').dataset.color,parseInt(this.value,10));
       })
     }
 
@@ -79,7 +87,7 @@ fetch("http://192.168.1.200:3000/api/products")
       window.location.href = `./index.html`;     // renvoi vers la page d'accueil
   });
 
-// assigne la fonction au clic sur le bouton "Commander"
+// Assigne la fonction au clic sur le bouton "Commander"
 
 document.getElementById("order").addEventListener("click",function(evt) {
 
@@ -87,16 +95,17 @@ document.getElementById("order").addEventListener("click",function(evt) {
   control_input_user();
 });
 
-// mise a jour du produit dans le localStore
+// Mise à jour du produit dans le localStore
 
 // id_update    : id du produit a modifier
+// id_color     : couleur du produit à modifier
 // quantity_sel : nouvelle quantité mise à jour
 
-function update_product(id_update, quantity_sel) {
+function update_product(id_update,id_color,quantity_sel) {
 
   let panier=JSON.parse(localStorage.getItem("panier"));
   for (const pt of panier) {
-    if (pt.product_id == id_update) {
+    if (pt.product_id == id_update && pt.product_col == id_color) {
       pt.product_qty=parseInt(quantity_sel,10);
       break;
     }
@@ -105,7 +114,7 @@ function update_product(id_update, quantity_sel) {
   update_tot_article_panier();
 }
 
-// mise à jour du nombre d'article du panier et calcule le total du panier
+// Mise à jour du nombre d'article du panier et calcule le total du panier
 
 function update_tot_article_panier() {
 
@@ -122,7 +131,7 @@ function update_tot_article_panier() {
   document.getElementById("totalPrice").innerHTML = total_panier;       // Insertion du code  : Prix total du panier
 }
 
-// supprime le produit sélectionné du panier
+// Supprime le produit sélectionné du panier
 
 // id_select    : id du produit à supprimer
 // id_html      : pointe l'article à supprimer dans le HTML
@@ -141,19 +150,20 @@ function del_product(id_select,id_color,id_html){
     }
     idx++;
   }
-  id_html.remove();   // suppresion de l'article concerné dans le HTML
+  id_html.remove();   // Suppresion de l'article concerné dans le HTML
 }
 
 // Contrôle la saisie de l'utilisateur (si OK envoi la requete sur l'API)
 
 function control_input_user() {
 
-  if(localStorage.getItem("panier") == '[]') {                                          // contrôle si le panier est vide
-    alert("Le panier est vide, il faut ajouter des articles\navant de commander !");
+  let panier=JSON.parse(localStorage.getItem("panier"));
+  if(panier == null || panier.length == 0) {                                          // Contrôle si le panier est vide
+    alert("Le panier est vide, il faut ajouter un article au moins\navant de commander !");
     return;
   }
 
-  const tab_reg = [ /^([a-zA-Z]|[à-ú]|[À-Ú])+$/,    // tableau contenant les expressions régulières
+  const tab_reg = [ /^([a-zA-Z]|[à-ú]|[À-Ú])+$/,    // Tableau contenant les expressions régulières
                     /^([a-zA-Z\s-]|[à-ú]|[À-Ú])+$/,
                     /^([a-zA-Z0-9\s,-]|[à-ú]|[À-Ú])+$/,
                     /^([a-zA-Z\s-]|[à-ú]|[À-Ú])+$/,
@@ -178,12 +188,12 @@ function control_input_user() {
     }
     idx++;
   }
-  if (error_input) {                                          // si une des entrées du client est erroné
+  if (error_input) {                                          // Si une des entrées du client est erroné
     alert("Veuillez modifier la ou les saisies érronées !");
     return false;
   }
 
-  let contact = {                       // préparation des données pour la requête
+  let contact = {                       // Préparation des données pour la requête
       firstName: tab_get[0],
       lastName: tab_get[1],
       address: tab_get[2],
@@ -192,19 +202,18 @@ function control_input_user() {
   };
 
   let products = [];
-  let panier=JSON.parse(localStorage.getItem("panier"));
-  for (const pt of panier) {                                // récupère tous les id du panier dans l'array products
+  for (const pt of panier) {                                // Récupère tous les id du panier dans l'array products
     products.push(pt.product_id);
   }
 
   send_infos(JSON.stringify({contact,products}));
 }
 
-// envoi la requête sur l'API et attend en retour le numéro de commande
+// Envoi la requête sur l'API et attend en retour le numéro de commande
 
 // requette : données émise pour la requete POST sur l'API l'object contact & le tableau des ID produit 
 
-function send_infos(requete) {       // var requete test
+function send_infos(requete) {
 
   fetch("http://192.168.1.200:3000/api/products/order", {
     method: "POST",
@@ -218,7 +227,7 @@ function send_infos(requete) {       // var requete test
     })
     .then(function(value) {
       console.log(value.orderId);
-      window.location.href = `./confirmation.html?id=${value.orderId}`;     // renvoi vers la page confirmation
+      window.location.href = `./confirmation.html?id=${value.orderId}`;     // Renvoi vers la page confirmation
     })
     .catch((err) => {
       console.log(err);

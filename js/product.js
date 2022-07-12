@@ -1,5 +1,5 @@
 
-// activation du mode strict
+// Activation du mode strict
 
 "use strict";
 
@@ -14,7 +14,7 @@ let id_canape = url.searchParams.get("id");
 
 url_api_canape+=id_canape;
 
-let price_sel;        // prix unitaire du canapé sélectionné
+let price_sel;        // Prix unitaire du canapé sélectionné
 
 // Récupération des données de l'API du serveur du produit sélectionné avec l'id transmis dans l'URL
 
@@ -38,7 +38,7 @@ fetch(url_api_canape)
 
     txt = `<option value="">--SVP, choisissez une couleur --</option>`;
     for (const pt of value.colors) {
-      txt+=`<option value=\" ${pt} \"> ${pt} </option>`;                   // insertion poue le choix des couleurs disponibles
+      txt+=`<option value=\" ${pt} \"> ${pt} </option>`;                   // Insertion poue le choix des couleurs disponibles
     }
     document.getElementById("colors").innerHTML = txt;         // Insertion du code HTML choix des couleurs disponibles
   })
@@ -47,13 +47,17 @@ fetch(url_api_canape)
     alert("Le serveur ne répond pas,\nveuillez réessayer ultérieurement.");
   });
 
+// Assigne la fonction au clic sur le bouton "Ajoute au panier"
+
+document.getElementById('addToCart').onclick = save_product;
+
 // Sauvegarde dans le LocalStore les infos du produit sélectionné
 
 function save_product() {
 
-  let color_sel;        // récupère la couleur du canapé sélectionné
-  let quantity_sel;     // récupère la quantité du canapé sélectionné
-  let panierJson;       // infos du produit dans le localStore
+  let color_sel;        // Récupère la couleur du canapé sélectionné
+  let quantity_sel;     // Récupère la quantité du canapé sélectionné
+  let panierJson;       // Infos du produit dans le localStore
 
   color_sel = document.getElementById("colors").value;
   quantity_sel = document.getElementById("quantity").value;
@@ -76,7 +80,7 @@ function save_product() {
   panier=JSON.parse(localStorage.getItem("panier"));
 
   if (panier !=null) {
-    let match = false;              // recherche de produit identique
+    let match = false;              // Recherche de produit identique
     for (const pt of panier) {
       if (pt.product_id == id_canape && pt.product_col == color_sel) {
         pt.product_qty+= parseInt(quantity_sel,10);
@@ -85,17 +89,13 @@ function save_product() {
       }
     }
     if (!match) {
-      panier.push(panierJson);      // pas de produit identique
+      panier.push(panierJson);      // Pas de produit identique
     }
   }
   else {
-    panier=[];
+    panier=[];                      // Le panier n'existe pas
     panier.push(panierJson);
   }
   localStorage.setItem("panier",JSON.stringify(panier));
   alert("L'article a bien été ajouté au panier");
 }
-
-// assigne la fonction au clic sur le bouton "Ajoute au panier"
-
-document.getElementById('addToCart').onclick = save_product;

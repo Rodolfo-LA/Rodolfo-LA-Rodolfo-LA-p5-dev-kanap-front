@@ -1,5 +1,5 @@
 
-// activation du mode strict
+// Activation du mode strict
 
 "use strict";
 
@@ -13,7 +13,7 @@ fetch("http://192.168.1.200:3000/api/products")
   })
   .then(function(value) {
     let txt = ``;
-    for( const pt of value) {                            // Génération du code HTML
+    for( const pt of value) {                            // Génération du code HTML à insérer
       txt+=`<a href="./product.html?id=${pt._id}">
               <article>
                 <img src="${pt.imageUrl}" alt="${pt.altTxt}">

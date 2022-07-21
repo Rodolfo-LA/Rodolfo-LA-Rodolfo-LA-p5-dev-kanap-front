@@ -7,40 +7,43 @@
 
 let panier = [];
 
-let url_api_canape = "http://192.168.1.200:3000/api/products/";
-let url_courante = window.location.href;
-let url = new URL(url_courante);
-let id_canape = url.searchParams.get("id");
+let urlApicanape = "http://localhost:3000/api/products/";
+let urlCourante = window.location.href;
+let url = new URL(urlCourante);
+let idCanape = url.searchParams.get("id");
 
-url_api_canape+=id_canape;
+urlApicanape+=idCanape;
 
-let price_sel;        // Prix unitaire du canapé sélectionné
+let priceSel;        // Prix unitaire du canapé sélectionné
 
 // Récupération des données de l'API du serveur du produit sélectionné avec l'id transmis dans l'URL
 
-fetch(url_api_canape)
+fetch(urlApicanape)
   .then(function(res) {
     if (res.ok) {
       return res.json();
     }
   })
   .then(function(value) {
-    let txt=`<img src=\"${value.imageUrl}\" alt=\"${value.altTxt}\">`;
+    let newImg= document.createElement("img");
+    newImg.setAttribute("src",`${value.imageUrl}`);
+    newImg.setAttribute("alt",`${value.altTxt}`);
+    let ptInsert = document.getElementsByClassName('item__img');
+    ptInsert[0].appendChild(newImg);        // Insertion du code HTML url de l'image
 
-    const contents = document.getElementsByClassName('item__img');
-    contents[0].innerHTML = txt;                                           // Insertion du code HTML url de l'image
+    priceSel = value.price;
 
-    price_sel = value.price; 
+    document.getElementById("title").textContent = value.name;               // Insertion du code HTML titre
+    document.getElementById("price").textContent = priceSel;                // Insertion du code HTML prix
+    document.getElementById("description").textContent = value.description;  // Insertion du code HTML descritif
 
-    document.getElementById("title").innerHTML = value.name;               // Insertion du code HTML titre
-    document.getElementById("price").innerHTML = price_sel;                // Insertion du code HTML prix
-    document.getElementById("description").innerHTML = value.description;  // Insertion du code HTML descritif
-
-    txt = `<option value="">--SVP, choisissez une couleur --</option>`;
+    ptInsert = document.getElementById("colors");
     for (const pt of value.colors) {
-      txt+=`<option value=\" ${pt} \"> ${pt} </option>`;                   // Insertion poue le choix des couleurs disponibles
+      let newOption= document.createElement("option");
+      newOption.setAttribute("value",`${pt}`);
+      newOption.textContent = `${pt}`;
+      ptInsert.appendChild(newOption);       // Insertion du code HTML choix des couleurs disponibles
     }
-    document.getElementById("colors").innerHTML = txt;         // Insertion du code HTML choix des couleurs disponibles
   })
   .catch(function(err) {
     console.log(err)
@@ -49,32 +52,32 @@ fetch(url_api_canape)
 
 // Assigne la fonction au clic sur le bouton "Ajoute au panier"
 
-document.getElementById('addToCart').onclick = save_product;
+document.getElementById('addToCart').onclick = saveProduct;
 
 // Sauvegarde dans le LocalStore les infos du produit sélectionné
 
-function save_product() {
+function saveProduct() {
 
-  let color_sel;        // Récupère la couleur du canapé sélectionné
-  let quantity_sel;     // Récupère la quantité du canapé sélectionné
+  let colorSel;        // Récupère la couleur du canapé sélectionné
+  let quantitySel;     // Récupère la quantité du canapé sélectionné
   let panierJson;       // Infos du produit dans le localStore
 
-  color_sel = document.getElementById("colors").value;
-  quantity_sel = document.getElementById("quantity").value;
+  colorSel = document.getElementById("colors").value;
+  quantitySel = document.getElementById("quantity").value;
 
-  if (quantity_sel<=0) {
+  if (quantitySel<=0) {
     alert("Veuillez modifier le nombre d'article !");
     return;
   }
-  if (color_sel=="") {
+  if (colorSel=="") {
     alert("Veuillez choisir une couleur pour l'article !");
     return;
   }
 
   panierJson = {
-    product_id : id_canape,
-    product_qty : parseInt(quantity_sel,10),
-    product_col : color_sel,
+    productId : idCanape,
+    productQty : parseInt(quantitySel,10),
+    productCol : colorSel,
   }
 
   panier=JSON.parse(localStorage.getItem("panier"));
@@ -82,8 +85,8 @@ function save_product() {
   if (panier !=null) {
     let match = false;              // Recherche de produit identique
     for (const pt of panier) {
-      if (pt.product_id == id_canape && pt.product_col == color_sel) {
-        pt.product_qty+= parseInt(quantity_sel,10);
+      if (pt.productId == idCanape && pt.productCol == colorSel) {
+        pt.productQty+= parseInt(quantitySel,10);
         match = true;
         break;
       }

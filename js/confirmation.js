@@ -6,7 +6,8 @@
 // Code pour la page Confirmation
 
 let url = new URL(window.location.href);
-let order_number = url.searchParams.get("id");
+let orderNumber = url.searchParams.get("id");
 
-document.getElementById("orderId").innerHTML = order_number;
-localStorage.clear();		// Suppression du contenu du local store
+let ptOrder = document.getElementById("orderId");
+ptOrder.textContent = orderNumber;
+localStorage.clear();		// Suppression du contenu du localStorage
